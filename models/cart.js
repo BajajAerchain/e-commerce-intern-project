@@ -11,14 +11,14 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate({product}) {
       // define association here
-      this.belongsTo(product,{foreignKey:'id'})
+      this.belongsTo(product,{foreignKey:'productId'})
     }
   }
   carts.init({
-    product_id: {
-      type:DataTypes.INTEGER,
-      allowNull:false
-    },
+    // productId: {
+    //   type:DataTypes.INTEGER,
+    //   allowNull:false
+    // },
     product_name: {
       type:DataTypes.STRING,
       allowNull:false
@@ -29,6 +29,10 @@ module.exports = (sequelize, DataTypes) => {
     },
     price: {
       type:DataTypes.INTEGER,
+      allowNull:false
+    },
+    active:{
+      type: DataTypes.BOOLEAN,
       allowNull:false
     },
     total: {

@@ -8,10 +8,10 @@ module.exports = {
         primaryKey: true,
         type: DataTypes.INTEGER
       },
-      product_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-      },
+      // product_id: {
+      //   type: DataTypes.INTEGER,
+      //   allowNull: false
+      // },
       product_name: {
         type: DataTypes.STRING,
         allowNull:false
@@ -27,6 +27,10 @@ module.exports = {
       total: {
         type: DataTypes.BIGINT,
         allowNull: false
+      },
+      active:{
+        type: DataTypes.BOOLEAN,
+        allowNull:false
       },
       createdAt: {
         allowNull: false,

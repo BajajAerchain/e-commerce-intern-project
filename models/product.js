@@ -7,10 +7,11 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({carts,history}) {
+    static associate({carts,history,category}) {
       // define association here
-      this.hasOne(carts,{foreignKey:'product_id'})
-      this.hasOne(history,{foreignKey:'product_id'})
+      this.hasOne(carts,{foreignKey:'productId'})
+      this.hasOne(history,{foreignKey:'productId'})
+      this.belongsTo(category,{foreignKey:'categoryId'})
     }
     //hides id from end user
     toJSON(){
@@ -26,12 +27,10 @@ module.exports = (sequelize, DataTypes) => {
       type:DataTypes.STRING,
       allowNull:false
     },
-    category: {
-      type:DataTypes.STRING
-    },
-    subcategory: {
-      type:DataTypes.STRING
-    },
+    // categoryId: {
+    //   type:DataTypes.INTEGER,
+    //   allowNull:false
+    // },
     price: {
       type:DataTypes.INTEGER,
       allowNull:false
