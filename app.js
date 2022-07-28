@@ -127,6 +127,26 @@ app.post('/cart',async(req,res)=>{
         return res.status(500).json(err)
     }
 })
+//remove items from cart, not functioning yet
+app.put('/cart/:pId',async(req,res)=>{
+    const pId= req.params.pId
+    try{
+        const producta=await product.update({
+                active:false
+                ,where:{productId:pId}
+        })
+        return res.json(producta)
+        // const {id}= req.params;
+        // const {description}= req.body;
+        // const updateTodo= await pool.query(
+        //     "UPDATE cart SET active=false WHERE productId=$1",[pId]
+        // );
+        // res.json("Todo was updated!");
+    } catch(err){
+        console.log(err)
+        return res.status(500).json({error:"Something went wrong"})
+    }
+})
 //get all products in cart
 app.get('/cart',async(req,res)=>{
     try{
@@ -137,6 +157,18 @@ app.get('/cart',async(req,res)=>{
     }catch(err){
         console.log(err)
         return res.status(500).json({error:"Something went wrong"})
+    }
+})
+
+//add product to history
+app.post('/cart',async(req,res)=>{
+    const{productId,product_name,price,quantity,total}=req.body
+    try{
+        const historyi= await history.create({productId,product_name,price,quantity,total})
+        return res.json(hitsoryi)
+    }catch(err){
+        console.log(err)
+        return res.status(500).json(err)
     }
 })
 
