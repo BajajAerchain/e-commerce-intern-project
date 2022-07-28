@@ -14,9 +14,9 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(category,{foreignKey:'categoryId'})
     }
     //hides id from end user
-    toJSON(){
-      return {...this.get(), id:undefined}
-    }
+    // toJSON(){
+    //   return {...this.get(), id:undefined}
+    // }
   }
   product.init({
     name: {

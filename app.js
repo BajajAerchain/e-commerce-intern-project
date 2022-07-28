@@ -62,7 +62,7 @@ app.get('/products',async(req,res)=>{
         return res.status(500).json({error:"Something went wrong"})
     }
 })
-//get one product specific product
+//get one product specific product by id
 app.get('/products/:id',async(req,res)=>{
     const id= req.params.id
     try{
@@ -75,12 +75,11 @@ app.get('/products/:id',async(req,res)=>{
         return res.status(500).json({error:"Something went wrong"})
     }
 })
-//get products by category
-// app.get('/products/category/:cat',async(req,res)=>{
-//     const cat= req.params.cat
+//get one product from each category
+// app.get('/products/suggestions',async(req,res)=>{
 //     try{
 //         const producta=await product.findAll({
-//             where:{category: cat}
+//             where:{categoryId:distinct}
 //         })
 //         return res.json(producta)
 //     }catch(err){
@@ -88,6 +87,70 @@ app.get('/products/:id',async(req,res)=>{
 //         return res.status(500).json({error:"Something went wrong"})
 //     }
 // })
+//get products by category
+app.get('/products/category/:cat',async(req,res)=>{
+    const cat= req.params.cat
+    try{
+        const producta=await product.findAll({
+            where:{categoryId: cat}
+        })
+        return res.json(producta)
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({error:"Something went wrong"})
+    }
+})
+//get products by price filter
+app.get('/products/priceFilter/:priceUpper',async(req,res)=>{
+    const { Op } = require("sequelize");
+    const priceUpper= req.params.priceUpper
+    try{
+        const producta=await product.findAll({
+            where:{price: {
+                [Op.lte]: priceUpper
+              }}
+        })
+        return res.json(producta)
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({error:"Something went wrong"})
+    }
+})
+//add product to cart
+app.post('/cart',async(req,res)=>{
+    const{productId,product_name,price,total}=req.body
+    try{
+        const cartu= await carts.create({productId,product_name,price,total})
+        return res.json(cartu)
+    }catch(err){
+        console.log(err)
+        return res.status(500).json(err)
+    }
+})
+//get all products in cart
+app.get('/cart',async(req,res)=>{
+    try{
+        const carta=await carts.findAll({
+            where:{active: true}
+        })
+        return res.json(carta)
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({error:"Something went wrong"})
+    }
+})
+
+//get all products from history
+app.get('/history',async(req,res)=>{
+    try{
+        const historyi=await history.findAll()
+        return res.json(historyi)
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({error:"Something went wrong"})
+    }
+})
+
 //connection
 app.listen({port:5000}, async ()=>{
     console.log('Server up on http://localhost:5000')
