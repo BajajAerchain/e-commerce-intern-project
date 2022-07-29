@@ -75,11 +75,11 @@ app.get('/products/:id',async(req,res)=>{
         return res.status(500).json({error:"Something went wrong"})
     }
 })
-//raw sql query test, shows number of items belonging to a category
+//raw sql query test, returns one product id from each category
 app.get('/suggestion',async(req,res)=>{
     try{
         const { QueryTypes } = require('sequelize');
-        const results = await product.sequelize.query('SELECT "categoryId",count("name") FROM "products" GROUP BY "categoryId" order by "categoryId"', { type: sequelize.QueryTypes.SELECT })
+        const results = await product.sequelize.query('SELECT "categoryId",min("id") FROM "products" GROUP BY "categoryId" order by "categoryId"', { type: sequelize.QueryTypes.SELECT })
         return res.json(results)
     }catch(err){
         console.log(err)
