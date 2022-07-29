@@ -127,23 +127,18 @@ app.get('/products/priceFilter/:priceUpper',async(req,res)=>{
         return res.status(500).json({error:"Something went wrong"})
     }
 })
-//get products by multiple filters, not functioning yet
-app.get('/test',async(req,res)=>{
+//get products filtered by lower and upper values
+app.get('/filterPrice',async(req,res)=>{
     const { Op } = require("sequelize");
     const {priceUpper,priceLower}= req.body
     try{
         const filter={
             where:{ 
                 price:{
-                [Op.and]: [{
-                    minimum: {
+                [Op.and]: {
                         [Op.lt]: priceUpper,
-                    },
-                }, {
-                    maximum: {
-                        [Op.gt]: priceLower,
-                    },
-                }],
+                        [Op.gt]: priceLower
+                },
             },
         }
         }
