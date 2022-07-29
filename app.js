@@ -75,11 +75,22 @@ app.get('/products/:id',async(req,res)=>{
         return res.status(500).json({error:"Something went wrong"})
     }
 })
+//raw sql query test, shows number of items belonging to a category
+app.get('/suggestion',async(req,res)=>{
+    try{
+        const { QueryTypes } = require('sequelize');
+        const results = await product.sequelize.query('SELECT "categoryId",count("name") FROM "products" GROUP BY "categoryId" order by "categoryId"', { type: sequelize.QueryTypes.SELECT })
+        return res.json(results)
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({error:"Something went wrong"})
+    }
+})
 //get one product from each category
-// app.get('/products/suggestions',async(req,res)=>{
+// app.get('/suggestions',async(req,res)=>{
 //     try{
 //         const producta=await product.findAll({
-//             where:{categoryId:distinct}
+//             Attributes: ['name'], group: ['categoryId']
 //         })
 //         return res.json(producta)
 //     }catch(err){
@@ -117,33 +128,32 @@ app.get('/products/priceFilter/:priceUpper',async(req,res)=>{
     }
 })
 //get products by multiple filters, not functioning yet
-// app.get('/test',async(req,res)=>{
-//     const { Op } = require("sequelize");
-//     const priceUpper= req.params["lower"]
-//     const priceLower= req.params["upper"]
-//     try{
-//         const filter={
-//             where:{ 
-//                 price:{
-//                 [Op.and]: [{
-//                     minimum: {
-//                         [Op.lte]: priceUpper,
-//                     },
-//                 }, {
-//                     maximum: {
-//                         [Op.gte]: priceLower,
-//                     },
-//                 }],
-//             },
-//         }
-//         }
-//         const producta=await product.findAll(filter)
-//         return res.json(producta)
-//     }catch(err){
-//         console.log(err)
-//         return res.status(500).json({error:"Something went wrong"})
-//     }
-// })
+app.get('/test',async(req,res)=>{
+    const { Op } = require("sequelize");
+    const {priceUpper,priceLower}= req.body
+    try{
+        const filter={
+            where:{ 
+                price:{
+                [Op.and]: [{
+                    minimum: {
+                        [Op.lt]: priceUpper,
+                    },
+                }, {
+                    maximum: {
+                        [Op.gt]: priceLower,
+                    },
+                }],
+            },
+        }
+        }
+        const producta=await product.findAll(filter)
+        return res.json(producta)
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({error:"Something went wrong"})
+    }
+})
 //add product to cart
 app.post('/cart',async(req,res)=>{
     const{productId,product_name,price,total}=req.body
@@ -156,7 +166,7 @@ app.post('/cart',async(req,res)=>{
     }
 })
 
-    //remove all items from cart, working but not giving any response
+    //remove all items from cart
     app.delete('/empty_cart',async(req,res)=>{
         try{
             const deleted=await carts.update(
@@ -173,7 +183,7 @@ app.post('/cart',async(req,res)=>{
             return res.status(500).json({error:"Something went wrong"})
         }
     })
-     //remove one item from cart by id of cart item, working but not giving any response
+     //remove one item from cart by id of cart item
      app.delete('/edit_cart/:id',async(req,res)=>{
         try{
             const id= req.params.id
