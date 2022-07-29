@@ -116,6 +116,34 @@ app.get('/products/priceFilter/:priceUpper',async(req,res)=>{
         return res.status(500).json({error:"Something went wrong"})
     }
 })
+//get products by multiple filters, not functioning yet
+// app.get('/test',async(req,res)=>{
+//     const { Op } = require("sequelize");
+//     const priceUpper= req.params["lower"]
+//     const priceLower= req.params["upper"]
+//     try{
+//         const filter={
+//             where:{ 
+//                 price:{
+//                 [Op.and]: [{
+//                     minimum: {
+//                         [Op.lte]: priceUpper,
+//                     },
+//                 }, {
+//                     maximum: {
+//                         [Op.gte]: priceLower,
+//                     },
+//                 }],
+//             },
+//         }
+//         }
+//         const producta=await product.findAll(filter)
+//         return res.json(producta)
+//     }catch(err){
+//         console.log(err)
+//         return res.status(500).json({error:"Something went wrong"})
+//     }
+// })
 //add product to cart
 app.post('/cart',async(req,res)=>{
     const{productId,product_name,price,total}=req.body
@@ -127,26 +155,42 @@ app.post('/cart',async(req,res)=>{
         return res.status(500).json(err)
     }
 })
-//remove items from cart, not functioning yet
-app.put('/cart/:pId',async(req,res)=>{
-    const pId= req.params.pId
-    try{
-        const producta=await product.update({
-                active:false
-                ,where:{productId:pId}
-        })
-        return res.json(producta)
-        // const {id}= req.params;
-        // const {description}= req.body;
-        // const updateTodo= await pool.query(
-        //     "UPDATE cart SET active=false WHERE productId=$1",[pId]
-        // );
-        // res.json("Todo was updated!");
-    } catch(err){
-        console.log(err)
-        return res.status(500).json({error:"Something went wrong"})
-    }
-})
+
+    //remove all items from cart, working but not giving any response
+    app.delete('/empty_cart',async(req,res)=>{
+        try{
+            const deleted=await carts.update(
+                { active: true },
+                {
+                  where: {
+                    active: [false],
+                  },
+                }
+              );
+              return res.json("emptied cart")
+        }catch(err){
+            console.log(err)
+            return res.status(500).json({error:"Something went wrong"})
+        }
+    })
+     //remove one item from cart by id of cart item, working but not giving any response
+     app.delete('/edit_cart/:id',async(req,res)=>{
+        try{
+            const id= req.params.id
+            const removed=await carts.update(
+                { active: false },
+                {
+                  where: {
+                    id: [id],
+                  },
+                }
+              );
+              return res.json("removed one item")
+        }catch(err){
+            console.log(err)
+            return res.status(500).json({error:"Something went wrong"})
+        }
+    })
 //get all products in cart
 app.get('/cart',async(req,res)=>{
     try{
@@ -161,11 +205,11 @@ app.get('/cart',async(req,res)=>{
 })
 
 //add product to history
-app.post('/cart',async(req,res)=>{
+app.post('/history',async(req,res)=>{
     const{productId,product_name,price,quantity,total}=req.body
     try{
         const historyi= await history.create({productId,product_name,price,quantity,total})
-        return res.json(hitsoryi)
+        return res.json(historyi)
     }catch(err){
         console.log(err)
         return res.status(500).json(err)
