@@ -160,10 +160,10 @@ app.post('/cart',async(req,res)=>{
     app.delete('/empty_cart',async(req,res)=>{
         try{
             const deleted=await carts.update(
-                { active: true },
+                { active: false },
                 {
                   where: {
-                    active: [false],
+                    active: [true],
                   },
                 }
               );
