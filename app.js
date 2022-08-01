@@ -111,22 +111,22 @@ app.get('/products/category/:cat',async(req,res)=>{
         return res.status(500).json({error:"Something went wrong"})
     }
 })
-//get products by price filter
-app.get('/products/priceFilter/:priceUpper',async(req,res)=>{
-    const { Op } = require("sequelize");
-    const priceUpper= req.params.priceUpper
-    try{
-        const producta=await product.findAll({
-            where:{price: {
-                [Op.lte]: priceUpper
-              }}
-        })
-        return res.json(producta)
-    }catch(err){
-        console.log(err)
-        return res.status(500).json({error:"Something went wrong"})
-    }
-})
+//get products by price filter less than upper value
+// app.get('/products/priceFilter/:priceUpper',async(req,res)=>{
+//     const { Op } = require("sequelize");
+//     const priceUpper= req.params.priceUpper
+//     try{
+//         const producta=await product.findAll({
+//             where:{price: {
+//                 [Op.lte]: priceUpper
+//               }}
+//         })
+//         return res.json(producta)
+//     }catch(err){
+//         console.log(err)
+//         return res.status(500).json({error:"Something went wrong"})
+//     }
+// })
 //get products filtered by lower and upper values
 app.get('/filterPrice',async(req,res)=>{
     const { Op } = require("sequelize");
@@ -139,6 +139,31 @@ app.get('/filterPrice',async(req,res)=>{
                         [Op.lt]: priceUpper,
                         [Op.gt]: priceLower
                 },
+            },
+        }
+        }
+        const producta=await product.findAll(filter)
+        return res.json(producta)
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({error:"Something went wrong"})
+    }
+})
+//get products filtered by lower and upper values and category
+app.get('/cat_price_filter',async(req,res)=>{
+    const { Op } = require("sequelize");
+    const {categoryId,priceUpper,priceLower}= req.body
+    try{
+        const filter={
+            where:{ 
+                [Op.and]:{
+                    categoryId:categoryId,
+                    price:{
+                        [Op.and]: {
+                           [Op.lt]: priceUpper,
+                           [Op.gt]: priceLower
+                         },
+                    },
             },
         }
         }
