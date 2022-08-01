@@ -53,15 +53,15 @@ app.post('/products',async(req,res)=>{
 
 
 //get all products
-app.get('/products',async(req,res)=>{
-    try{
-        const producta=await product.findAll()
-        return res.json(producta)
-    }catch(err){
-        console.log(err)
-        return res.status(500).json({error:"Something went wrong"})
-    }
-})
+// app.get('/products',async(req,res)=>{
+//     try{
+//         const producta=await product.findAll()
+//         return res.json(producta)
+//     }catch(err){
+//         console.log(err)
+//         return res.status(500).json({error:"Something went wrong"})
+//     }
+// })
 //get one product specific product by id
 app.get('/products/:id',async(req,res)=>{
     const id= req.params.id
@@ -76,24 +76,24 @@ app.get('/products/:id',async(req,res)=>{
     }
 })
 //search
-app.get('/search',async(req,res)=>{
-    const { Op } = require("sequelize");
-    const {name}= req.body
-    try{
-        const filter={
-            where:{ 
-                name:{
-                [Op.substring]: name
-                },
-            }
-        }
-        const producta=await product.findAll(filter)
-        return res.json(producta)
-    }catch(err){
-        console.log(err)
-        return res.status(500).json({error:"Something went wrong"})
-    }
-})
+// app.get('/search',async(req,res)=>{
+//     const { Op } = require("sequelize");
+//     const {name}= req.body
+//     try{
+//         const filter={
+//             where:{ 
+//                 name:{
+//                 [Op.substring]: name
+//                 },
+//             }
+//         }
+//         const producta=await product.findAll(filter)
+//         return res.json(producta)
+//     }catch(err){
+//         console.log(err)
+//         return res.status(500).json({error:"Something went wrong"})
+//     }
+// })
 //raw sql query test, returns one product id from each category
 app.get('/suggestion',async(req,res)=>{
     try{
@@ -118,18 +118,18 @@ app.get('/suggestion',async(req,res)=>{
 //     }
 // })
 //get products by category
-app.get('/products/category/:cat',async(req,res)=>{
-    const cat= req.params.cat
-    try{
-        const producta=await product.findAll({
-            where:{categoryId: cat}
-        })
-        return res.json(producta)
-    }catch(err){
-        console.log(err)
-        return res.status(500).json({error:"Something went wrong"})
-    }
-})
+// app.get('/products/category/:cat',async(req,res)=>{
+//     const cat= req.params.cat
+//     try{
+//         const producta=await product.findAll({
+//             where:{categoryId: cat}
+//         })
+//         return res.json(producta)
+//     }catch(err){
+//         console.log(err)
+//         return res.status(500).json({error:"Something went wrong"})
+//     }
+// })
 //get products by price filter less than upper value
 // app.get('/products/priceFilter/:priceUpper',async(req,res)=>{
 //     const { Op } = require("sequelize");
@@ -147,52 +147,97 @@ app.get('/products/category/:cat',async(req,res)=>{
 //     }
 // })
 //get products filtered by lower and upper values
-app.get('/filterPrice',async(req,res)=>{
-    const { Op } = require("sequelize");
-    const {priceUpper,priceLower}= req.body
-    try{
-        const filter={
-            where:{ 
-                price:{
-                [Op.and]: {
-                        [Op.lt]: priceUpper,
-                        [Op.gt]: priceLower
-                },
-            },
+// app.get('/filterPrice',async(req,res)=>{
+//     const { Op } = require("sequelize");
+//     const {priceUpper,priceLower}= req.body
+//     try{
+//         const filter={
+//             where:{ 
+//                 price:{
+//                 [Op.and]: {
+//                         [Op.lt]: priceUpper,
+//                         [Op.gt]: priceLower
+//                 },
+//             },
+//         }
+//         }
+//         const producta=await product.findAll(filter)
+//         return res.json(producta)
+//     }catch(err){
+//         console.log(err)
+//         return res.status(500).json({error:"Something went wrong"})
+//     }
+// })
+//get products filtered by lower and upper values and category, all products writing another way
+// app.get('/cat_price_filter',async(req,res)=>{
+//     const { Op } = require("sequelize");
+//     const {categoryId,priceUpper,priceLower}= req.body
+//     try{
+//         const filter={
+//             where:{ 
+//                 [Op.and]:{
+//                     //if(categoryId==1||categoryId==2||categoryId==3||categoryId==4||categoryId==5)
+//                     categoryId:categoryId,
+//                     price:{
+//                         [Op.and]: {
+//                            [Op.lt]: priceUpper,
+//                            [Op.gt]: priceLower
+//                          },
+//                     },
+//             },
+//         }
+//         }
+//         if(categoryId==undefined && priceUpper==undefined && priceLower==undefined)
+//         {   const producta=await product.findAll()
+//             return res.json(producta)
+//         }
+//         else {
+//             const producta=await product.findAll(filter)
+//             return res.json(producta)
+//         }
+        
+//     }catch(err){
+//         console.log(err)
+//         return res.status(500).json({error:"Something went wrong"})//json.error(err.message)
+//     }
+// })
+
+//product listing page
+app.get('/products',async(req,res)=>{
+        const { Op } = require("sequelize");
+        const {name,categoryId,priceUpper,priceLower}= req.query
+        //console.log(categoryId,priceUpper,priceLower)
+        try{
+            // if(priceUpper!=undefined){
+            // }
+            // if(priceLower!=undefined){
+            // }
+            let options = { where: {} };
+            if(categoryId){
+                options.where.categoryId=categoryId
+            }
+            if(priceUpper && priceLower){
+                options.where.price={
+                    //$between : {priceLower,priceUpper}
+                    [Op.and]: {
+                       [Op.lte]: priceUpper,
+                       [Op.gte]: priceLower
+                    }
+                }
+            }
+            if(name){
+                options.where.name={
+                    [Op.substring]:name
+                }
+            }
+
+            const producta=await product.findAll(options)
+            return res.json(producta)
+        }catch(err){
+            console.log(err)
+            return res.status(500).json({error:"Something went wrong"})//json.error(err.message)
         }
-        }
-        const producta=await product.findAll(filter)
-        return res.json(producta)
-    }catch(err){
-        console.log(err)
-        return res.status(500).json({error:"Something went wrong"})
-    }
-})
-//get products filtered by lower and upper values and category
-app.get('/cat_price_filter',async(req,res)=>{
-    const { Op } = require("sequelize");
-    const {categoryId,priceUpper,priceLower}= req.body
-    try{
-        const filter={
-            where:{ 
-                [Op.and]:{
-                    categoryId:categoryId,
-                    price:{
-                        [Op.and]: {
-                           [Op.lt]: priceUpper,
-                           [Op.gt]: priceLower
-                         },
-                    },
-            },
-        }
-        }
-        const producta=await product.findAll(filter)
-        return res.json(producta)
-    }catch(err){
-        console.log(err)
-        return res.status(500).json({error:"Something went wrong"})//json.error(err.message)
-    }
-})
+    })
 //add product to cart
 app.post('/cart',async(req,res)=>{
     const{productId,product_name,price,total}=req.body
