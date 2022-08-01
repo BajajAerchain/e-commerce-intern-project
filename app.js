@@ -15,7 +15,7 @@ app.post('/products/category',async(req,res)=>{
         return res.status(500).json(err)
     }
 })
-//get all categories
+//get all categories, or get one specific category details by categoryId
 app.get('/products/category',async(req,res)=>{
     const {categoryId}= req.query
     try{
@@ -67,19 +67,21 @@ app.post('/products',async(req,res)=>{
 //         return res.status(500).json({error:"Something went wrong"})
 //     }
 // })
+
 //get one product specific product by id
-app.get('/products/:id',async(req,res)=>{
-    const id= req.params.id
-    try{
-        const producta=await product.findOne({
-            where:{id}
-        })
-        return res.json(producta)
-    }catch(err){
-        console.log(err)
-        return res.status(500).json({error:"Something went wrong"})
-    }
-})
+// app.get('/products/:id',async(req,res)=>{
+//     const id= req.params.id
+//     try{
+//         const producta=await product.findOne({
+//             where:{id}
+//         })
+//         return res.json(producta)
+//     }catch(err){
+//         console.log(err)
+//         return res.status(500).json({error:"Something went wrong"})
+//     }
+// })
+
 //search
 // app.get('/search',async(req,res)=>{
 //     const { Op } = require("sequelize");
@@ -210,10 +212,13 @@ app.get('/suggestion',async(req,res)=>{
 //product listing page
 app.get('/products',async(req,res)=>{
         const { Op } = require("sequelize");
-        const {name,categoryId,priceUpper,priceLower,description}= req.query
+        const {id,name,categoryId,priceUpper,priceLower,description}= req.query
         //console.log(categoryId,priceUpper,priceLower)
         try{
             let options = { where: {} };
+            if(id){
+                options.where.id=id
+            }
             if(categoryId){
                 options.where.categoryId=categoryId
             }
@@ -244,6 +249,7 @@ app.get('/products',async(req,res)=>{
             return res.status(500).json({error:"Something went wrong"})//json.error(err.message)
         }
     })
+
 //add product to cart
 app.post('/cart',async(req,res)=>{
     const{productId,product_name,price,total}=req.body
@@ -256,41 +262,44 @@ app.post('/cart',async(req,res)=>{
     }
 })
 
-    //remove all items from cart
-    app.delete('/empty_cart',async(req,res)=>{
+    //remove all items from cart, or one specific item
+    app.delete('/cart',async(req,res)=>{
+        const {id}=req.query
         try{
+            let options={where:{}};
+            if(id){
+                options.where.id=id
+            }
             const deleted=await carts.update(
                 { active: false },
-                {
-                  where: {
-                    active: [true],
-                  },
-                }
+                options
               );
-              return res.json("emptied cart")
+              return res.json("removed from cart")
         }catch(err){
             console.log(err)
             return res.status(500).json({error:"Something went wrong"})
         }
     })
+    
      //remove one item from cart by id of cart item
-     app.delete('/edit_cart/:id',async(req,res)=>{
-        try{
-            const id= req.params.id
-            const removed=await carts.update(
-                { active: false },
-                {
-                  where: {
-                    id: [id],
-                  },
-                }
-              );
-              return res.json("removed one item")
-        }catch(err){
-            console.log(err)
-            return res.status(500).json({error:"Something went wrong"})
-        }
-    })
+    //  app.delete('/edit_cart/:id',async(req,res)=>{
+    //     try{
+    //         const id= req.params.id
+    //         const removed=await carts.update(
+    //             { active: false },
+    //             {
+    //               where: {
+    //                 id: [id],
+    //               },
+    //             }
+    //           );
+    //           return res.json("removed one item")
+    //     }catch(err){
+    //         console.log(err)
+    //         return res.status(500).json({error:"Something went wrong"})
+    //     }
+    // })
+
 //get all products in cart
 app.get('/cart',async(req,res)=>{
     try{
