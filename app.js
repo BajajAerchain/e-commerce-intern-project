@@ -17,8 +17,13 @@ app.post('/products/category',async(req,res)=>{
 })
 //get all categories
 app.get('/products/category',async(req,res)=>{
+    const {categoryId}= req.query
     try{
-        const categ=await category.findAll()
+        let options = { where: {} };
+        if(categoryId){
+            options.where.id=categoryId
+        }
+        const categ=await category.findAll(options)
         return res.json(categ)
     }catch(err){
         console.log(err)
@@ -205,13 +210,9 @@ app.get('/suggestion',async(req,res)=>{
 //product listing page
 app.get('/products',async(req,res)=>{
         const { Op } = require("sequelize");
-        const {name,categoryId,priceUpper,priceLower}= req.query
+        const {name,categoryId,priceUpper,priceLower,description}= req.query
         //console.log(categoryId,priceUpper,priceLower)
         try{
-            // if(priceUpper!=undefined){
-            // }
-            // if(priceLower!=undefined){
-            // }
             let options = { where: {} };
             if(categoryId){
                 options.where.categoryId=categoryId
@@ -228,6 +229,11 @@ app.get('/products',async(req,res)=>{
             if(name){
                 options.where.name={
                     [Op.substring]:name
+                }
+            }
+            if(description){
+                options.where.description={
+                    [Op.substring]:description
                 }
             }
 
