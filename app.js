@@ -75,6 +75,25 @@ app.get('/products/:id',async(req,res)=>{
         return res.status(500).json({error:"Something went wrong"})
     }
 })
+//search
+app.get('/search',async(req,res)=>{
+    const { Op } = require("sequelize");
+    const {name}= req.body
+    try{
+        const filter={
+            where:{ 
+                name:{
+                [Op.substring]: name
+                },
+            }
+        }
+        const producta=await product.findAll(filter)
+        return res.json(producta)
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({error:"Something went wrong"})
+    }
+})
 //raw sql query test, returns one product id from each category
 app.get('/suggestion',async(req,res)=>{
     try{
@@ -171,7 +190,7 @@ app.get('/cat_price_filter',async(req,res)=>{
         return res.json(producta)
     }catch(err){
         console.log(err)
-        return res.status(500).json({error:"Something went wrong"})
+        return res.status(500).json({error:"Something went wrong"})//json.error(err.message)
     }
 })
 //add product to cart
