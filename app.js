@@ -175,39 +175,7 @@ app.get('/suggestion',async(req,res)=>{
 //         return res.status(500).json({error:"Something went wrong"})
 //     }
 // })
-//get products filtered by lower and upper values and category, all products writing another way
-// app.get('/cat_price_filter',async(req,res)=>{
-//     const { Op } = require("sequelize");
-//     const {categoryId,priceUpper,priceLower}= req.body
-//     try{
-//         const filter={
-//             where:{ 
-//                 [Op.and]:{
-//                     //if(categoryId==1||categoryId==2||categoryId==3||categoryId==4||categoryId==5)
-//                     categoryId:categoryId,
-//                     price:{
-//                         [Op.and]: {
-//                            [Op.lt]: priceUpper,
-//                            [Op.gt]: priceLower
-//                          },
-//                     },
-//             },
-//         }
-//         }
-//         if(categoryId==undefined && priceUpper==undefined && priceLower==undefined)
-//         {   const producta=await product.findAll()
-//             return res.json(producta)
-//         }
-//         else {
-//             const producta=await product.findAll(filter)
-//             return res.json(producta)
-//         }
-        
-//     }catch(err){
-//         console.log(err)
-//         return res.status(500).json({error:"Something went wrong"})//json.error(err.message)
-//     }
-// })
+
 
 //product listing page
 app.get('/products',async(req,res)=>{
@@ -233,7 +201,10 @@ app.get('/products',async(req,res)=>{
             }
             if(name){
                 options.where.name={
-                    [Op.substring]:name
+                    [Op.or]: {
+                        [Op.substring]:name,
+                        [Op.iLike]:name
+                     }
                 }
             }
             if(description){
@@ -250,11 +221,11 @@ app.get('/products',async(req,res)=>{
         }
     })
 
-//add product to cart
+//add product to cart, now you can add quantity and don't have to add total 
 app.post('/cart',async(req,res)=>{
-    const{productId,product_name,price,total}=req.body
+    const{productId,product_name,price,quantity}=req.body
     try{
-        const cartu= await carts.create({productId,product_name,price,total})
+        const cartu= await carts.create({productId,product_name,price,quantity,total:price*quantity})
         return res.json(cartu)
     }catch(err){
         console.log(err)
@@ -313,11 +284,23 @@ app.get('/cart',async(req,res)=>{
     }
 })
 
+//cart total
+app.get('/cart_total',async(req,res)=>{
+    try{
+        const { QueryTypes } = require('sequelize');
+        const results = await carts.sequelize.query('SELECT sum("total") AS "total of cart" FROM "cart" WHERE "active"=true', { type: sequelize.QueryTypes.SELECT })
+        return res.json(results)
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({error:"Something went wrong"})
+    }
+})
+
 //add product to history
 app.post('/history',async(req,res)=>{
-    const{productId,product_name,price,quantity,total}=req.body
+    const{productId,product_name,price,quantity}=req.body
     try{
-        const historyi= await history.create({productId,product_name,price,quantity,total})
+        const historyi= await history.create({productId,product_name,price,quantity,total:quantity*price})
         return res.json(historyi)
     }catch(err){
         console.log(err)
@@ -335,6 +318,7 @@ app.get('/history',async(req,res)=>{
         return res.status(500).json({error:"Something went wrong"})
     }
 })
+
 
 //connection
 app.listen({port:5000}, async ()=>{
